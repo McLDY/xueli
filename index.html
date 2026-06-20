@@ -426,6 +426,12 @@ body.mobile .mobile-layout { display:block; }
   window.__isMobile = isMobile;
 })();
 
+// CORS proxy for Bilibili API (browser blocks direct cross-origin)
+var CORS_PROXY = "https://api.allorigins.win/raw?url=";
+function fetchBili(url) {
+  return fetch(CORS_PROXY + encodeURIComponent(url));
+}
+
 // ===================== MARKDOWN RENDERER =====================
 var mdRenderer;
 function mdRender(t) {
@@ -453,11 +459,11 @@ async function fetchXueliData() {
   if (xueliCache && (now - xueliCacheTime) < 5000) return xueliCache;
   try {
     var results = await Promise.all([
-      fetch('https://api.bilibili.com/x/space/acc/info?mid=394065596'),
-      fetch('https://api.bilibili.com/x/relation/stat?vmid=394065596'),
-      fetch('https://api.bilibili.com/x/space/upstat?mid=394065596'),
-      fetch('https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=394065596'),
-      fetch('https://api.bilibili.com/x/space/arc/search?mid=394065596&ps=1')
+      fetchBili('https://api.bilibili.com/x/space/acc/info?mid=394065596'),
+      fetchBili('https://api.bilibili.com/x/relation/stat?vmid=394065596'),
+      fetchBili('https://api.bilibili.com/x/space/upstat?mid=394065596'),
+      fetchBili('https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=394065596'),
+      fetchBili('https://api.bilibili.com/x/space/arc/search?mid=394065596&ps=1')
     ]);
     var data = await Promise.all(results.map(function(r){ return r.json(); }));
     xueliCache = {
@@ -530,7 +536,7 @@ async function fetchTimeline() {
   var now = Date.now();
   if (timelineCache && (now - timelineCacheTime) < 5000) return timelineCache;
   try {
-    var r = await fetch('https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?host_mid=394065596');
+    var r = await fetchBili('https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?host_mid=394065596');
     var d = await r.json();
     if (d.code !== 0 || !d.data || !d.data.items) { timelineCache = []; }
     else { timelineCache = d.data.items; }
@@ -602,7 +608,7 @@ setInterval(function(){
 
 // Fan count refreshes more often
 setInterval(function(){
-  fetch('https://api.bilibili.com/x/relation/stat?vmid=394065596')
+  fetchBili('https://api.bilibili.com/x/relation/stat?vmid=394065596')
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.code === 0 && d.data) {
