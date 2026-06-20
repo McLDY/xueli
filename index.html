@@ -418,6 +418,7 @@ body.mobile .mobile-layout { display:block; }
 </div>
 
 
+
 <script>
 // ===================== LAYOUT DETECTION =====================
 (function(){
@@ -427,305 +428,104 @@ body.mobile .mobile-layout { display:block; }
   window.__isMobile = isMobile;
 })();
 
-// ===================== CORS PROXY =====================
-var CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-function biliFetch(url) {
-  return fetch(CORS_PROXY + encodeURIComponent(url), {
-    signal: AbortSignal.timeout(15000)
-  });
-}
-
-// ===================== WBI SIGNING =====================
-// Bilibili's WBI anti-crawler: requests to space/* APIs need w_rid + wts params.
-// We fetch the signing keys from the nav endpoint and compute MD5 hashes.
-
-var wbiKeys = null;       // {imgKey, subKey, mixinKey}
-var wbiKeysTime = 0;
-
-// Simple MD5 (RFC 1321) — pure JS, no dependency
-function md5(str) {
-  function r(e,t){return(e<<t)|(e>>>(32-t));}
-  function n(e,t){var n,i,o,s,a;o=e&2147483648;s=t&2147483648;n=e&1073741824;i=t&1073741824;a=(e&1073741823)+(t&1073741823);return n&i?2147483648^a^o^s:n|i?1073741824&a?3221225472^a^o^s:1073741824^a^o^s:a^o^s;}
-  function i(e,t,n){return e&t|~e&n;}
-  function o(e,t,n){return e&n|t&~n;}
-  function s(e,t,n){return e^t^n;}
-  function a(e,t,n){return t^(e|~n);}
-  function l(e,o,s,a,l,c,u){e=n(e,n(n(i(o,s,a),l),u));return n(r(e,c),o);}
-  function c(e,i,s,a,c,u,d){e=n(e,n(n(o(i,s,a),c),u));return n(r(e,d),i);}
-  function u(e,i,o,a,c,u,d){e=n(e,n(n(s(i,o,a),c),u));return n(r(e,d),i);}
-  function d(e,i,o,s,c,u,d){e=n(e,n(n(a(i,o,s),c),u));return n(r(e,d),i);}
-  function f(e){for(var t,n=e.length,i=n+8,o=(i-i%64)/64,s=16*(o+1),a=new Array(s-1),l=0,c=0;c<n;)t=(c-c%4)/4,l=c%4*8,a[t]=a[t]|e.charCodeAt(c)<<l,c++;t=(c-c%4)/4;l=c%4*8;a[t]=a[t]|128<<l;a[s-2]=n<<3;a[s-1]=n>>>29;return a;}
-  function h(e){var t,n="";for(t=0;t<=3;t++)n+="0123456789abcdef".charAt(e>>t*8+4&15)+"0123456789abcdef".charAt(e>>t*8&15);return n;}
-  var m,p,g,b,v,w,_,y=[],x=1732584193,k=4023233417,S=2562383102,T=271733878,j=3285377520;
-  var P=f(str);
-  for(m=0;m<P.length;m+=16){p=x;g=k;b=S;v=T;w=j;
-    x=l(x,k,S,T,P[m+0],7,3614090360);T=l(T,x,k,S,P[m+1],12,3905402710);S=l(S,T,x,k,P[m+2],17,606105819);k=l(k,S,T,x,P[m+3],22,3250441966);
-    x=l(x,k,S,T,P[m+4],7,4118548399);T=l(T,x,k,S,P[m+5],12,1200080426);S=l(S,T,x,k,P[m+6],17,2821735955);k=l(k,S,T,x,P[m+7],22,4249261313);
-    x=l(x,k,S,T,P[m+8],7,1770035416);T=l(T,x,k,S,P[m+9],12,2336552879);S=l(S,T,x,k,P[m+10],17,4294925233);k=l(k,S,T,x,P[m+11],22,2304563134);
-    x=l(x,k,S,T,P[m+12],7,1804603682);T=l(T,x,k,S,P[m+13],12,4254626195);S=l(S,T,x,k,P[m+14],17,2792965006);k=l(k,S,T,x,P[m+15],22,1236535329);
-    x=c(x,k,S,T,P[m+1],5,4129170786);T=c(T,x,k,S,P[m+6],9,3225465664);S=c(S,T,x,k,P[m+11],14,643717713);k=c(k,S,T,x,P[m+0],20,3921069994);
-    x=c(x,k,S,T,P[m+5],5,3593408605);T=c(T,x,k,S,P[m+10],9,38016083);S=c(S,T,x,k,P[m+15],14,3634488961);k=c(k,S,T,x,P[m+4],20,3889429448);
-    x=c(x,k,S,T,P[m+9],5,568446438);T=c(T,x,k,S,P[m+14],9,3275163606);S=c(S,T,x,k,P[m+3],14,4107603335);k=c(k,S,T,x,P[m+8],20,1163531501);
-    x=c(x,k,S,T,P[m+13],5,2850285829);T=c(T,x,k,S,P[m+2],9,4243563512);S=c(S,T,x,k,P[m+7],14,1735328473);k=c(k,S,T,x,P[m+12],20,2368359562);
-    x=u(x,k,S,T,P[m+5],4,4294588738);T=u(T,x,k,S,P[m+8],11,2272392833);S=u(S,T,x,k,P[m+11],16,1839030562);k=u(k,S,T,x,P[m+14],23,4259657740);
-    x=u(x,k,S,T,P[m+1],4,2763975236);T=u(T,x,k,S,P[m+4],11,1272893353);S=u(S,T,x,k,P[m+7],16,4139469664);k=u(k,S,T,x,P[m+10],23,3200236656);
-    x=u(x,k,S,T,P[m+13],4,681279174);T=u(T,x,k,S,P[m+0],11,3936430074);S=u(S,T,x,k,P[m+3],16,3572445317);k=u(k,S,T,x,P[m+6],23,76029189);
-    x=u(x,k,S,T,P[m+9],4,3654602809);T=u(T,x,k,S,P[m+12],11,3873151461);S=u(S,T,x,k,P[m+15],16,530742520);k=u(k,S,T,x,P[m+2],23,3299628645);
-    x=d(x,k,S,T,P[m+0],6,4096336452);T=d(T,x,k,S,P[m+7],10,1126891415);S=d(S,T,x,k,P[m+14],15,2878612391);k=d(k,S,T,x,P[m+5],21,4237533241);
-    x=d(x,k,S,T,P[m+12],6,1700485571);T=d(T,x,k,S,P[m+3],10,2399980690);S=d(S,T,x,k,P[m+10],15,4293915773);k=d(k,S,T,x,P[m+1],21,2240044497);
-    x=d(x,k,S,T,P[m+8],6,1873313359);T=d(T,x,k,S,P[m+15],10,4264355552);S=d(S,T,x,k,P[m+6],15,2734768916);k=d(k,S,T,x,P[m+13],21,1309151649);
-    x=d(x,k,S,T,P[m+4],6,4149444226);T=d(T,x,k,S,P[m+11],10,3174756917);S=d(S,T,x,k,P[m+2],15,718787259);k=d(k,S,T,x,P[m+9],21,3951481745);
-    x=n(x,p);k=n(k,g);S=n(S,b);T=n(T,v);j=n(j,w);
-  }
-  return (h(x)+h(k)+h(S)+h(T)+h(j)).toLowerCase();
-}
-
-// WBI mixin key table
-var WBI_MIXIN = [46,47,18,2,53,8,23,32,15,50,10,31,58,3,45,35,27,43,5,49,33,9,42,19,29,28,14,39,12,38,41,13,37,48,7,16,24,55,40,61,26,17,0,1,60,51,30,4,22,25,54,21,56,59,6,63,57,62,11,36,20,34,44,52];
-
-async function fetchWbiKeys() {
-  var now = Date.now();
-  if (wbiKeys && (now - wbiKeysTime) < 3600000) return wbiKeys; // cache 1 hour
-  try {
-    var r = await biliFetch('https://api.bilibili.com/x/web-interface/nav');
-    var d = await r.json();
-    if (d.code === 0 || d.code === -101) { // -101 = not logged in, still has wbi_img
-      var img = (d.data && d.data.wbi_img && d.data.wbi_img.img_url) || '';
-      var sub = (d.data && d.data.wbi_img && d.data.wbi_img.sub_url) || '';
-      var imgKey = img.split('/').pop().split('.')[0];
-      var subKey = sub.split('/').pop().split('.')[0];
-      if (imgKey && subKey) {
-        var mixinRaw = (imgKey + subKey).slice(0, 64);
-        var mixinKey = '';
-        for (var i = 0; i < 32; i++) { mixinKey += mixinRaw[WBI_MIXIN[i]]; }
-        wbiKeys = { imgKey: imgKey, subKey: subKey, mixinKey: mixinKey };
-        wbiKeysTime = now;
-        return wbiKeys;
-      }
-    }
-  } catch(e) {}
-  return null;
-}
-
-function signWbi(url) {
-  if (!wbiKeys) return url;
-  // Parse query params
-  var qm = url.indexOf('?');
-  if (qm < 0) return url;
-  var base = url.slice(0, qm);
-  var qs = url.slice(qm + 1);
-  var params = {};
-  qs.split('&').forEach(function(p) {
-    var kv = p.split('=');
-    if (kv.length === 2) params[kv[0]] = kv[1];
-  });
-  // Add wts
-  params.wts = Math.floor(Date.now() / 1000);
-  // Sort keys
-  var keys = Object.keys(params).sort();
-  var queryStr = keys.map(function(k) { return k + '=' + params[k]; }).join('&');
-  // MD5(queryStr + mixinKey)
-  params.w_rid = md5(queryStr + wbiKeys.mixinKey);
-  // Rebuild
-  keys = Object.keys(params).sort();
-  return base + '?' + keys.map(function(k) { return k + '=' + params[k]; }).join('&');
-}
-
-// ===================== MARKDOWN RENDERER =====================
-var mdRenderer;
-function mdRender(t) {
-  try {
-    if (!window.marked) return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    if (!mdRenderer) {
-      mdRenderer = {
-        link: function(p) {
-          return '<a href="' + p.href + '" target="_blank">' + p.text + '</a>';
-        }
-      };
-      marked.use({renderer: mdRenderer});
-    }
-    return marked.parse(t);
-  } catch(e) { return t; }
-}
-
 // ===================== DATA LAYER =====================
-var xueliCache = null;
-var xueliCacheTime = 0;
-
-async function fetchXueliData() {
-  var now = Date.now();
-  if (xueliCache && (now - xueliCacheTime) < 30000) return xueliCache;
-
-  var data = {};
-
-  // 1. relation/stat — fans (no WBI needed)
-  try {
-    var r = await biliFetch('https://api.bilibili.com/x/relation/stat?vmid=394065596');
-    data.stat = await r.json();
-  } catch(e) { data.stat = null; }
-
-  // 2. live — live status (no WBI needed)
-  try {
-    var r2 = await biliFetch('https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=394065596');
-    data.live = await r2.json();
-  } catch(e) { data.live = null; }
-
-  // 3. space/acc/info — user name & sign (WBI signed)
-  try {
-    await fetchWbiKeys();
-    var accUrl = signWbi('https://api.bilibili.com/x/space/wbi/acc/info?mid=394065596');
-    var r3 = await biliFetch(accUrl);
-    data.info = await r3.json();
-  } catch(e) { data.info = null; }
-
-  // 4. space/arc/search — works count (WBI signed)
-  try {
-    var arcUrl = signWbi('https://api.bilibili.com/x/space/wbi/arc/search?mid=394065596&ps=1');
-    var r4 = await biliFetch(arcUrl);
-    data.works = await r4.json();
-  } catch(e) { data.works = null; }
-
-  xueliCache = data;
-  xueliCacheTime = now;
-  return data;
-}
-
 function setText(id, val) {
   var el = document.getElementById(id);
   if (el) el.textContent = val;
 }
 
-function renderXueliData(d) {
+function renderData(d) {
   if (!d) return;
 
-  // Fans
-  if (d.stat && d.stat.code === 0 && d.stat.data) {
-    var fans = d.stat.data.follower;
-    setText('fans-count', fans);
-    setText('xueli-fans', fans);
-    setText('fans-count-mobile', fans);
+  // Name
+  if (d.name) {
+    setText('xueli-mobile-name', d.name);
   }
+
+  // Fans
+  var fans = d.fans || 0;
+  setText('fans-count', fans);
+  setText('xueli-fans', fans);
+  setText('fans-count-mobile', fans);
 
   // Live status
-  if (d.live && d.live.code === 0 && d.live.data) {
-    var liveText = d.live.data.live_status === 1 ? '直播中' : '离线';
-    setText('xueli-live', liveText);
-    setText('xueli-mobile-live', liveText);
-  }
-
-  // User info
-  if (d.info && d.info.code === 0 && d.info.data) {
-    setText('xueli-sign', d.info.data.sign || '暂无签名');
-    setText('xueli-mobile-name', d.info.data.name || '雪梨');
-  }
+  setText('xueli-live', d.live_status === 1 ? '直播中' : '离线');
+  setText('xueli-mobile-live', d.live_status === 1 ? '直播中' : '离线');
 
   // Works count
-  if (d.works && d.works.code === 0 && d.works.data) {
-    var cnt = d.works.data.page ? d.works.data.page.count : d.works.data.count;
-    setText('xueli-works', cnt || 0);
-    setText('xueli-mobile-works', cnt || 0);
+  var works = d.works || 0;
+  setText('xueli-works', works);
+  setText('xueli-mobile-works', works);
+
+  // Sign / live title as subtitle
+  if (d.live_title) {
+    setText('xueli-sign', d.live_title);
   }
 
-  // Likes — from relation/stat (bilibili doesn't expose a simple likes API without WBI)
-  // We use follower for now; likes require upstat which returns empty
+  // Timestamp
+  if (d.updated_at) {
+    var el = document.getElementById('data-updated');
+    if (el) el.textContent = d.updated_at;
+  }
 }
 
-// ===================== TIMELINE (simplified) =====================
-// The polymer dynamic feed API is heavily anti-bot protected (412).
-// Use the card-based space API which is more lenient.
-var timelineCache = null;
-var timelineCacheTime = 0;
-
-async function fetchTimeline() {
-  var now = Date.now();
-  if (timelineCache && (now - timelineCacheTime) < 30000) return timelineCache;
-  try {
-    await fetchWbiKeys();
-    var tlUrl = signWbi('https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?host_mid=394065596');
-    var r = await biliFetch(tlUrl);
-    var d = await r.json();
-    if (d.code !== 0 || !d.data || !d.data.items) {
-      timelineCache = [];
-    } else {
-      timelineCache = d.data.items;
-    }
-    timelineCacheTime = now;
-    return timelineCache;
-  } catch(e) { timelineCache = []; return []; }
-}
-
-function renderTimeline(items) {
+// ===================== TIMELINE =====================
+function renderTimeline(d) {
   var isMobile = window.__isMobile;
   var containerId = isMobile ? 'mob-tl-xueli' : 'tl-xueli-list';
   var el = document.getElementById(containerId);
-  if (!el) return;
+  if (!el || !d) return;
 
-  if (!items || items.length === 0) {
-    el.innerHTML = '<div class="' + (isMobile ? 'mob-tl-empty' : 'tl-empty') + '">暂无动态</div>';
-    return;
+  var clsItem = isMobile ? 'mob-tl-item' : 'tl-node';
+  var clsDate = isMobile ? 'mob-tl-date' : 'tl-date';
+  var clsBox  = isMobile ? 'mob-tl-box'  : 'tl-box';
+
+  var items = [];
+
+  // Stats card
+  items.push({
+    date: d.updated_at ? d.updated_at.slice(0, 10) : '',
+    content: '📊 **数据概览**
+
+' +
+      '👥 粉丝: **' + (d.fans || 0) + '**  |  关注: **' + (d.following || 0) + '**
+' +
+      '🎬 作品: **' + (d.works || 0) + '**  |  图文: **' + (d.albums || 0) + '**
+' +
+      '📝 动态: **' + (d.dynamics || 0) + '**  |  直播: **' + (d.live_status === 1 ? '🟢 直播中' : '⚫ 离线') + '**'
+  });
+
+  // Live info card
+  if (d.live_title) {
+    items.push({
+      date: '',
+      content: '🎤 **直播间**: [' + d.live_title + '](https://live.bilibili.com/' + (d.room_id || '') + ')'
+    });
   }
 
-  var clsItem  = isMobile ? 'mob-tl-item'  : 'tl-node';
-  var clsDate  = isMobile ? 'mob-tl-date'  : 'tl-date';
-  var clsBox   = isMobile ? 'mob-tl-box'   : 'tl-box';
-
-  el.innerHTML = items.map(function(item){
-    var mod = item.modules || {};
-    var author = mod.module_author || {};
-    var dyn = mod.module_dynamic || {};
-    var desc = dyn.desc || {};
-    var major = dyn.major || {};
-    var ts = author.pub_ts || 0;
-    var date = ts ? new Date(ts * 1000).toLocaleDateString('zh-CN') : '';
-    var text = desc.text || '';
-
-    if (major.type === 'MAJOR_TYPE_ARCHIVE' && major.archive) {
-      text += '\n\n📺 **' + (major.archive.title || '视频') + '**';
-      text += '\n▶️ [观看视频](https://www.bilibili.com/video/' + major.archive.bvid + ')';
-    }
-    if (major.type === 'MAJOR_TYPE_DRAW') {
-      text += '\n\n🖼️ 发布了图片';
-    }
-
+  el.innerHTML = items.map(function(item) {
     return '<div class="' + clsItem + '">' +
-           '<div class="' + clsDate + '">' + date + '</div>' +
-           '<div class="' + clsBox + '">' + mdRender(text) + '</div>' +
+           '<div class="' + clsDate + '">' + item.date + '</div>' +
+           '<div class="' + clsBox + '">' + item.content + '</div>' +
            '</div>';
   }).join('');
 }
 
 // ===================== BOOTSTRAP =====================
 async function refreshAll() {
-  var data = await fetchXueliData();
-  renderXueliData(data);
-
-  var tl = await fetchTimeline();
-  renderTimeline(tl);
+  try {
+    var r = await fetch('./data.json?' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    var d = await r.json();
+    renderData(d);
+    renderTimeline(d);
+  } catch(e) {
+    console.warn('Failed to load data.json: ' + e.message);
+  }
 }
 
 refreshAll();
-
-setInterval(function(){
-  fetchXueliData().then(renderXueliData);
-}, 60000);
-
-setInterval(function(){
-  fetchTimeline().then(renderTimeline);
-}, 60000);
-
-// Fans refresh more often (no WBI needed)
-setInterval(function(){
-  biliFetch('https://api.bilibili.com/x/relation/stat?vmid=394065596')
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.code === 0 && d.data) {
-        setText('fans-count', d.data.follower);
-        setText('xueli-fans', d.data.follower);
-        setText('fans-count-mobile', d.data.follower);
-      }
-    })
-    .catch(function(){});
-}, 20000);
+setInterval(refreshAll, 90000);  // every 90s — Actions updates every 15min
 </script>
 </body>
 </html>
