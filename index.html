@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My World</title>
+<script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+/* === RESET === */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"Microsoft YaHei",sans-serif;
+  background:#050816;
+  color:#fff;
+}
+
+/* === LAYOUT TOGGLE === */
+.desktop-layout, .mobile-layout { display:none; }
+body.desktop .desktop-layout { display:block; }
+body.mobile .mobile-layout { display:block; }
+
+/* ============================================
+   DESKTOP LAYOUT
+   ============================================ */
+.desktop-layout .header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 30px;
+  background:#0a1025;
+  border-bottom:1px solid #00d9ff55;
+}
+.desktop-layout .logo{font-size:28px;color:#00d9ff;font-weight:bold}
+.desktop-layout .nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.desktop-layout .nav a{
+  color:white;text-decoration:none;
+  padding:8px 14px;border-radius:8px;
+}
+.desktop-layout .nav a:hover{background:#00d9ff22}
+.desktop-layout .search input{
+  padding:10px 15px;border:none;border-radius:8px;
+  background:#111b3a;color:white;width:240px;
+}
+.desktop-layout .hero{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:40px;
+  padding:50px 30px;
+}
+.desktop-layout .card{
+  flex:1;
+  min-height:320px;
+  background:#0c1430;
+  border:1px solid #00d9ff44;
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 0 20px rgba(0,217,255,.15);
+}
+.desktop-layout .card h1{margin-bottom:15px}
+.desktop-layout .btn{
+  display:inline-block;
+  margin-top:20px;
+  background:#00d9ff;
+  color:#000;
+  padding:12px 20px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:bold;
+}
+.desktop-layout .section-title{
+  text-align:center;
+  margin:20px 0;
+  font-size:32px;
+  color:#00d9ff;
+}
+.desktop-layout .tl-wrap{
+  padding:20px 30px 60px;
+}
+.desktop-layout .tl-col{
+  background:#0c1430;
+  border-radius:18px;
+  padding:25px;
+  border:1px solid #00d9ff44;
+}
+.desktop-layout .tl-col h2{
+  margin-bottom:20px;
+  color:#00d9ff;
+}
+/* Desktop timeline nodes */
+.desktop-layout .tl-list{
+  position:relative;
+  padding-left:20px;
+}
+.desktop-layout .tl-list::before{
+  content:'';
+  position:absolute;
+  left:6px;top:8px;bottom:8px;
+  width:2px;
+  background:linear-gradient(to bottom,#00d9ff66,#d86fff66);
+  border-radius:1px;
+}
+.desktop-layout .tl-node{
+  position:relative;
+  margin-bottom:28px;
+  padding-left:8px;
+}
+.desktop-layout .tl-node::before{
+  content:'';
+  position:absolute;
+  left:-16px;top:5px;
+  width:12px;height:12px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#00d9ff,#d86fff);
+  border:2px solid #0c1430;
+  box-shadow:0 0 8px rgba(0,217,255,.4);
+}
+.desktop-layout .tl-date{
+  font-size:13px;
+  color:#00d9ff;
+  font-weight:bold;
+  margin-bottom:6px;
+}
+.desktop-layout .stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-top:20px;
+}
+.desktop-layout .stat{
+  background:#121d40;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.desktop-layout .stat b{
+  display:block;
+  font-size:24px;
+  color:#00d9ff;
+  white-space:nowrap;
+}
+.desktop-layout .stat-label{
+  font-size:13px;color:#fff;display:block;margin-top:2px;
+}
+.desktop-layout .footer{
+  text-align:center;
+  padding:20px;
+  border-top:1px solid #00d9ff33;
+}
+
+/* ============================================
+   MOBILE LAYOUT
+   ============================================ */
+.mobile-layout{
+  padding-bottom:80px;
+}
+.mobile-layout .header{
+  position:sticky;top:0;z-index:100;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px;
+  background:#08101f;
+  border-bottom:1px solid rgba(0,229,255,.3);
+}
+.mobile-layout .logo{
+  font-size:22px;
+  font-weight:bold;
+  color:#00E5FF;
+}
+.mobile-layout .icon{font-size:24px}
+.mobile-layout .hero{
+  text-align:center;
+  padding:30px 20px;
+}
+.mobile-layout .title{
+  font-size:32px;
+  margin-top:20px;
+  background:linear-gradient(135deg,#00E5FF,#D86FFF);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.mobile-layout .subtitle{
+  color:#bdbdbd;
+  margin-top:10px;
+}
+.mobile-layout .btn{
+  display:block;
+  margin:15px auto;
+  padding:15px;
+  width:90%;
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:bold;
+  background:linear-gradient(135deg,#00E5FF,#D86FFF);
+  color:white;
+}
+.mobile-layout .section{
+  padding:20px;
+}
+.mobile-layout .card{
+  background:#0d1328;
+  border:1px solid rgba(0,229,255,.2);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:15px;
+  backdrop-filter:blur(10px);
+}
+.mobile-layout .card h3{
+  margin-bottom:10px;
+  color:#00E5FF;
+}
+/* Mobile fans bar */
+.mobile-layout .fans-bar{
+  text-align:center;padding:10px 20px;font-size:18px;
+  color:#00E5FF;background:#0d1328;margin:0 20px;
+  border-radius:12px;border:1px solid rgba(0,229,255,.2);
+}
+/* Mobile timeline */
+.mobile-layout .mob-tl{
+  position:relative;
+  padding-left:16px;
+}
+.mobile-layout .mob-tl::before{
+  content:'';
+  position:absolute;
+  left:4px;top:8px;bottom:8px;
+  width:2px;
+  background:linear-gradient(to bottom,#00d9ff66,#d86fff66);
+  border-radius:1px;
+}
+.mobile-layout .mob-tl-item{
+  position:relative;
+  margin-bottom:20px;
+  padding-left:6px;
+}
+.mobile-layout .mob-tl-item::before{
+  content:'';
+  position:absolute;
+  left:-14px;top:4px;
+  width:10px;height:10px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#00d9ff,#d86fff);
+  border:2px solid #0d1328;
+  box-shadow:0 0 6px rgba(0,217,255,.4);
+}
+.mobile-layout .mob-tl-date{
+  font-size:12px;
+  color:#00d9ff;
+  font-weight:bold;
+  margin-bottom:4px;
+}
+.mobile-layout .bottom-nav{
+  position:fixed;
+  bottom:0;left:0;
+  width:100%;height:65px;
+  background:#08101f;
+  border-top:1px solid rgba(0,229,255,.3);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+.mobile-layout .bottom-nav a{
+  color:white;text-decoration:none;
+  font-size:13px;text-align:center;
+}
+.mobile-layout .bottom-nav span{
+  display:block;
+  font-size:22px;
+}
+
+/* ============================================
+   SHARED TIMELINE BOX STYLES
+   ============================================ */
+.tl-box, .mob-tl-box{
+  background:#0a1025;
+  border:1px solid #00d9ff33;
+  border-radius:10px;
+  padding:12px 16px;
+  font-size:14px;
+  line-height:1.7;
+  color:#ddd;
+}
+.mob-tl-box{
+  background:#070c1a;
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:13px;
+  line-height:1.6;
+  color:#ccc;
+}
+.tl-box strong, .mob-tl-box strong{color:#fff}
+.tl-box em, .mob-tl-box em{color:#00d9ff}
+.tl-box code, .mob-tl-box code{
+  background:#1a2345;
+  color:#ffcc66;
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:13px;
+}
+.mob-tl-box code{
+  padding:1px 4px;
+  border-radius:3px;
+  font-size:12px;
+}
+.tl-box pre, .mob-tl-box pre{
+  background:#1a2345;
+  border-radius:8px;
+  padding:12px;
+  overflow-x:auto;
+  margin:8px 0;
+}
+.mob-tl-box pre{
+  border-radius:6px;
+  padding:10px;
+  margin:6px 0;
+}
+.tl-box pre code, .mob-tl-box pre code{background:none;padding:0}
+.tl-box a, .mob-tl-box a{color:#00d9ff}
+.tl-box ul, .mob-tl-box ul{margin:6px 0;padding-left:20px}
+.mob-tl-box ul{padding-left:16px;margin:4px 0}
+
+.tl-empty, .mob-tl-empty{
+  color:#666;padding:20px;text-align:center;
+}
+.mob-tl-empty{padding:10px;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- ==================== DESKTOP LAYOUT ==================== -->
+<div class="desktop-layout">
+  <header class="header">
+    <div class="logo">My World</div>
+    <nav class="nav">
+      <a href="#">首页</a>
+      <a href="#">介绍</a>
+      <a href="#">分类</a>
+      <a href="#">直播</a>
+      <a href="#">作品</a>
+      <a href="#">留言板</a>
+      <a href="https://space.bilibili.com/394065596" target="_blank">雪梨B站</a>
+    </nav>
+    <div class="search">
+      <input type="text" placeholder="搜索内容...">
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="card">
+      <h1>Hello, I'm Myself</h1>
+      <p>个人主页入口</p>
+      <div class="stats">
+        <div class="stat"><b>0</b>项目</div>
+        <div class="stat"><b>0</b>文章</div>
+        <div class="stat"><b id="fans-count">0</b>粉丝</div>
+        <div class="stat"><b>0</b>获赞</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>雪梨 · 虚拟主播</h1>
+      <p id="xueli-sign">二次元虚拟主播主页入口</p>
+      <div class="stats">
+        <div class="stat"><b id="xueli-live">0</b><span class="stat-label">直播</span></div>
+        <div class="stat"><b id="xueli-fans">0</b>粉丝</div>
+        <div class="stat"><b id="xueli-works">0</b>作品</div>
+        <div class="stat"><b id="xueli-likes">0</b>获赞</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tl-wrap">
+    <div class="tl-col">
+      <h2>雪梨的动态时间轴</h2>
+      <div class="tl-list" id="tl-xueli-list"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    &copy; 2026 My World &middot; All Rights Reserved
+  </footer>
+</div>
+
+<!-- ==================== MOBILE LAYOUT ==================== -->
+<div class="mobile-layout">
+  <header class="header">
+    <div class="icon">&#9776;</div>
+    <div class="logo">My World</div>
+    <div class="icon">&#128269;</div>
+  </header>
+
+  <section class="hero">
+    <h1 class="title">Welcome To My World</h1>
+    <p class="subtitle">Connecting Two Worlds</p>
+  </section>
+
+  <div class="fans-bar">
+    <span id="xueli-mobile-name">雪梨</span> 的粉丝 <b id="fans-count-mobile">0</b>
+    <span> &middot; 直播: <b id="xueli-mobile-live">0</b></span>
+    <span> &middot; 作品: <b id="xueli-mobile-works">0</b></span>
+    <span> &middot; 获赞: <b id="xueli-mobile-likes">0</b></span>
+  </div>
+
+  <section class="section">
+    <div class="card">
+      <h3>雪梨动态</h3>
+      <div class="mob-tl" id="mob-tl-xueli"></div>
+    </div>
+  </section>
+
+  <nav class="bottom-nav">
+    <a href="#"><span>&#127968;</span>首页</a>
+    <a href="#"><span>&#128220;</span>时间轴</a>
+    <a href="https://space.bilibili.com/394065596" target="_blank"><span>&#127800;</span>雪梨B站</a>
+  </nav>
+</div>
+
+<script>
+// ===================== LAYOUT DETECTION =====================
+(function(){
+  var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+              || window.innerWidth < 768;
+  document.body.className = isMobile ? 'mobile' : 'desktop';
+  window.__isMobile = isMobile;
+})();
+
+// ===================== MARKDOWN RENDERER =====================
+var mdRenderer;
+function mdRender(t) {
+  try {
+    if (!window.marked) return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    if (!mdRenderer) {
+      mdRenderer = {
+        link: function(p) {
+          return '<a href="' + p.href + '" target="_blank">' + p.text + '</a>';
+        }
+      };
+      marked.use({renderer: mdRenderer});
+    }
+    return marked.parse(t);
+  } catch(e) { return t; }
+}
+
+// ===================== DATA LAYER =====================
+var xueliCache = null;
+var xueliCacheTime = 0;
+
+async function fetchXueliData() {
+  var now = Date.now();
+  // deduplicate calls within 5 seconds
+  if (xueliCache && (now - xueliCacheTime) < 5000) return xueliCache;
+  try {
+    var results = await Promise.all([
+      fetch('https://api.bilibili.com/x/space/acc/info?mid=394065596'),
+      fetch('https://api.bilibili.com/x/relation/stat?vmid=394065596'),
+      fetch('https://api.bilibili.com/x/space/upstat?mid=394065596'),
+      fetch('https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=394065596'),
+      fetch('https://api.bilibili.com/x/space/arc/search?mid=394065596&ps=1')
+    ]);
+    var data = await Promise.all(results.map(function(r){ return r.json(); }));
+    xueliCache = {
+      info: data[0],
+      stat: data[1],
+      upstat: data[2],
+      live: data[3],
+      works: data[4]
+    };
+    xueliCacheTime = now;
+    return xueliCache;
+  } catch(e) { return null; }
+}
+
+function renderXueliData(d) {
+  if (!d) return;
+  var info = d.info, stat = d.stat, upstat = d.upstat, live = d.live, works = d.works;
+  var isMobile = window.__isMobile;
+
+  // Common: fans count (both layouts have a fans element)
+  if (stat && stat.code === 0 && stat.data) {
+    var fans = stat.data.follower;
+    setText('fans-count', fans);
+    setText('xueli-fans', fans);
+    setText('fans-count-mobile', fans);
+  }
+
+  // Desktop-specific
+  if (info && info.code === 0 && info.data) {
+    setText('xueli-sign', info.data.sign || '暂无签名');
+  }
+
+  // Mobile-specific name
+  if (info && info.code === 0 && info.data) {
+    setText('xueli-mobile-name', info.data.name || '雪梨');
+  }
+
+  // Live status
+  if (live && live.code === 0 && live.data) {
+    var statusText = live.data.live_status === 1 ? '直播中' : '离线';
+    setText('xueli-live', statusText);
+    setText('xueli-mobile-live', statusText);
+  }
+
+  // Works count
+  if (works && works.code === 0 && works.data) {
+    var count = works.data.page.count;
+    setText('xueli-works', count);
+    setText('xueli-mobile-works', count);
+  }
+
+  // Likes
+  if (upstat && upstat.code === 0 && upstat.data) {
+    var likes = (upstat.data.likes || 0).toLocaleString();
+    setText('xueli-likes', likes);
+    setText('xueli-mobile-likes', likes);
+  }
+}
+
+function setText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ===================== TIMELINE =====================
+var timelineCache = null;
+var timelineCacheTime = 0;
+
+async function fetchTimeline() {
+  var now = Date.now();
+  if (timelineCache && (now - timelineCacheTime) < 5000) return timelineCache;
+  try {
+    var r = await fetch('https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?host_mid=394065596');
+    var d = await r.json();
+    if (d.code !== 0 || !d.data || !d.data.items) { timelineCache = []; }
+    else { timelineCache = d.data.items; }
+    timelineCacheTime = now;
+    return timelineCache;
+  } catch(e) { return []; }
+}
+
+function renderTimeline(items) {
+  var isMobile = window.__isMobile;
+  var containerId = isMobile ? 'mob-tl-xueli' : 'tl-xueli-list';
+  var el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (!items || items.length === 0) {
+    el.innerHTML = '<div class="' + (isMobile ? 'mob-tl-empty' : 'tl-empty') + '">暂无动态</div>';
+    return;
+  }
+
+  var clsItem  = isMobile ? 'mob-tl-item'  : 'tl-node';
+  var clsDate  = isMobile ? 'mob-tl-date'  : 'tl-date';
+  var clsBox   = isMobile ? 'mob-tl-box'   : 'tl-box';
+
+  el.innerHTML = items.map(function(item){
+    var mod = item.modules || {};
+    var author = mod.module_author || {};
+    var dyn = mod.module_dynamic || {};
+    var desc = dyn.desc || {};
+    var major = dyn.major || {};
+    var ts = author.pub_ts || 0;
+    var date = ts ? new Date(ts * 1000).toLocaleDateString('zh-CN') : '';
+    var text = desc.text || '';
+
+    if (major.type === 'MAJOR_TYPE_ARCHIVE' && major.archive) {
+      text += '\n\n📺 **' + (major.archive.title || '视频') + '**';
+      text += '\n▶️ [观看视频](https://www.bilibili.com/video/' + major.archive.bvid + ')';
+    }
+    if (major.type === 'MAJOR_TYPE_DRAW') {
+      text += '\n\n🖼️ 发布了图片';
+    }
+
+    return '<div class="' + clsItem + '">' +
+           '<div class="' + clsDate + '">' + date + '</div>' +
+           '<div class="' + clsBox + '">' + mdRender(text) + '</div>' +
+           '</div>';
+  }).join('');
+}
+
+// ===================== BOOTSTRAP =====================
+async function refreshAll() {
+  var data = await fetchXueliData();
+  renderXueliData(data);
+
+  var tl = await fetchTimeline();
+  renderTimeline(tl);
+}
+
+// Initial load
+refreshAll();
+
+// Periodic refresh
+setInterval(function(){
+  fetchXueliData().then(renderXueliData);
+}, 60000);
+
+setInterval(function(){
+  fetchTimeline().then(renderTimeline);
+}, 30000);
+
+// Fan count refreshes more often
+setInterval(function(){
+  fetch('https://api.bilibili.com/x/relation/stat?vmid=394065596')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.code === 0 && d.data) {
+        setText('fans-count', d.data.follower);
+        setText('xueli-fans', d.data.follower);
+        setText('fans-count-mobile', d.data.follower);
+      }
+    })
+    .catch(function(){});
+}, 15000);
+</script>
+
+</body>
+</html>
