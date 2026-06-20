@@ -426,10 +426,30 @@ body.mobile .mobile-layout { display:block; }
   window.__isMobile = isMobile;
 })();
 
-// CORS proxy for Bilibili API (browser blocks direct cross-origin)
-var CORS_PROXY = "https://api.allorigins.win/raw?url=";
+// Multi-proxy fetch for Bilibili API
+// Browser blocks direct cross-origin; we try multiple CORS proxies.
+// allorigins is reliable but slow; when it rate-limits, fallbacks kick in.
+var CORS_PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?url='
+];
 function fetchBili(url) {
-  return fetch(CORS_PROXY + encodeURIComponent(url));
+  var encoded = encodeURIComponent(url);
+  var idx = 0;
+  function tryNext() {
+    if (idx >= CORS_PROXIES.length) return Promise.reject(new Error('all proxies failed'));
+    var proxy = CORS_PROXIES[idx++];
+    return fetch(proxy + encoded, { signal: AbortSignal.timeout(12000) })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r;
+      })
+      .catch(function(e) {
+        console.warn('proxy ' + proxy.slice(0,30) + '... failed: ' + e.message);
+        return tryNext();
+      });
+  }
+  return tryNext();
 }
 
 // ===================== MARKDOWN RENDERER =====================
@@ -457,25 +477,33 @@ async function fetchXueliData() {
   var now = Date.now();
   // deduplicate calls within 5 seconds
   if (xueliCache && (now - xueliCacheTime) < 5000) return xueliCache;
-  try {
-    var results = await Promise.all([
-      fetchBili('https://api.bilibili.com/x/space/acc/info?mid=394065596'),
-      fetchBili('https://api.bilibili.com/x/relation/stat?vmid=394065596'),
-      fetchBili('https://api.bilibili.com/x/space/upstat?mid=394065596'),
-      fetchBili('https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=394065596'),
-      fetchBili('https://api.bilibili.com/x/space/arc/search?mid=394065596&ps=1')
-    ]);
-    var data = await Promise.all(results.map(function(r){ return r.json(); }));
-    xueliCache = {
-      info: data[0],
-      stat: data[1],
-      upstat: data[2],
-      live: data[3],
-      works: data[4]
-    };
-    xueliCacheTime = now;
-    return xueliCache;
-  } catch(e) { return null; }
+  // Serial requests to avoid CORS proxy rate-limiting
+  var labels = ['info', 'stat', 'upstat', 'live', 'works'];
+  var urls = [
+    'https://api.bilibili.com/x/space/acc/info?mid=394065596',
+    'https://api.bilibili.com/x/relation/stat?vmid=394065596',
+    'https://api.bilibili.com/x/space/upstat?mid=394065596',
+    'https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=394065596',
+    'https://api.bilibili.com/x/space/arc/search?mid=394065596&ps=1'
+  ];
+  var data = {};
+  var allOk = false;
+  for (var i = 0; i < urls.length; i++) {
+    try {
+      var r = await fetchBili(urls[i]);
+      var j = await r.json();
+      data[labels[i]] = j;
+      allOk = true;
+    } catch(e) {
+      console.warn('fetchXueliData: ' + labels[i] + ' failed: ' + e.message);
+      data[labels[i]] = null;
+    }
+    if (i < urls.length - 1) { await new Promise(function(r) { setTimeout(r, 300); }); }
+  }
+  if (!allOk) return null;
+  xueliCache = data;
+  xueliCacheTime = now;
+  return data;
 }
 
 function renderXueliData(d) {
