@@ -151,7 +151,7 @@ body.mobile .mobile-layout { display:block }
         <div class="stat"><b>0</b>项目</div>
         <div class="stat"><b>0</b>文章</div>
         <div class="stat"><b id="fans-count">0</b>粉丝</div>
-        <div class="stat"><b>0</b>获赞</div>
+        <div class="stat"><b id="myself-dynamics">0</b>动态</div>
       </div>
     </div>
     <div class="card">
@@ -161,7 +161,7 @@ body.mobile .mobile-layout { display:block }
         <div class="stat"><b id="xueli-live">0</b><span class="stat-label">直播</span></div>
         <div class="stat"><b id="xueli-fans">0</b>粉丝</div>
         <div class="stat"><b id="xueli-works">0</b>作品</div>
-        <div class="stat"><b id="xueli-likes">0</b>获赞</div>
+        <div class="stat"><b id="xueli-dynamics">0</b>动态</div>
       </div>
     </div>
   </section>
@@ -191,7 +191,7 @@ body.mobile .mobile-layout { display:block }
     <span id="xueli-mobile-name">雪梨</span> 的粉丝 <b id="fans-count-mobile">0</b>
     <span> &middot; 直播: <b id="xueli-mobile-live">0</b></span>
     <span> &middot; 作品: <b id="xueli-mobile-works">0</b></span>
-    <span> &middot; 获赞: <b id="xueli-mobile-likes">0</b></span>
+    <span> &middot; 动态: <b id="xueli-mobile-dynamics">0</b></span>
   </div>
   <section class="section">
     <div class="card">
@@ -229,6 +229,9 @@ function render(d) {
   setText('xueli-mobile-live', d.live_status === 1 ? '直播中' : '离线');
   setText('xueli-works', d.works || 0);
   setText('xueli-mobile-works', d.works || 0);
+  setText("xueli-dynamics", d.dynamics || 0);
+  setText("xueli-mobile-dynamics", d.dynamics || 0);
+  setText("myself-dynamics", d.dynamics || 0);
   if (d.live_title) setText('xueli-sign', d.live_title);
 }
 
