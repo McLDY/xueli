@@ -1,19 +1,24 @@
-"""Fetch Bilibili user data and write to data.json."""
-import urllib.request, json, time, sys
+"""Fetch Bilibili user data + dynamics. Writes data.json + dynamics.json."""
+import urllib.request, json, time, sys, os
 from datetime import datetime, timezone
 
 UID = sys.argv[1] if len(sys.argv) > 1 else "394065596"
-HEADERS = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.bilibili.com"}
+COOKIE = os.environ.get("BILI_COOKIE", "")
 
-def fetch(url, ref=None):
+HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+def fetch(url, ref=None, auth=False):
     h = dict(HEADERS)
     if ref: h["Referer"] = ref
+    if auth and COOKIE:
+        h["Cookie"] = COOKIE
     req = urllib.request.Request(url, headers=h)
     with urllib.request.urlopen(req, timeout=15) as r:
         return json.loads(r.read())
 
 data = {}
 
+# ── Stats ──
 try:
     j = fetch(f"https://api.bilibili.com/x/relation/stat?vmid={UID}")
     if j.get("code") == 0:
@@ -59,5 +64,53 @@ data["updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 with open("data.json", "w") as f:
     json.dump(data, f, ensure_ascii=False, indent=2)
+print("data.json:", json.dumps(data, ensure_ascii=False))
 
-print(json.dumps(data, ensure_ascii=False))
+# ── Dynamics ──
+if not COOKIE:
+    print("No BILI_COOKIE, skipping dynamics", file=sys.stderr)
+else:
+    time.sleep(1)
+    try:
+        j = fetch(
+            f"https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?host_mid={UID}",
+            ref=f"https://space.bilibili.com/{UID}/dynamic",
+            auth=True
+        )
+        items = j.get("data", {}).get("items", [])
+        dynamics = []
+        for item in items:
+            mod = item.get("modules", {})
+            author = mod.get("module_author", {})
+            dyn = mod.get("module_dynamic", {})
+            desc = (dyn.get("desc") or {}).get("text", "")
+            major = dyn.get("major") or {}
+            ts = int(author.get("pub_ts") or 0)
+            date = datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d") if ts else ""
+            id_str = item.get("id_str") or ""
+            short_id = id_str[-12:] if len(id_str) >= 12 else id_str
+
+            entry = {
+                "id": short_id,
+                "type": "text",
+                "content": desc or "",
+                "date": date,
+            }
+
+            if major.get("type") == "MAJOR_TYPE_ARCHIVE":
+                arc = major.get("archive") or {}
+                entry["type"] = "video"
+                entry["video"] = {
+                    "title": arc.get("title", ""),
+                    "bvid": arc.get("bvid", ""),
+                }
+            elif major.get("type") == "MAJOR_TYPE_DRAW":
+                entry["type"] = "image"
+
+            dynamics.append(entry)
+
+        with open("dynamics.json", "w") as f:
+            json.dump(dynamics, f, ensure_ascii=False, indent=2)
+        print(f"dynamics.json: {len(dynamics)} items")
+    except Exception as e:
+        print(f"dynamics: {e}", file=sys.stderr)
