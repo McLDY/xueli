@@ -1,12 +1,15 @@
-name: Update Bilibili Data
+name: Update & Build
 
 on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['dynamics.json', 'data.json', 'build.py']
 
 jobs:
-  fetch:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,14 +19,17 @@ jobs:
       - name: Fetch Bilibili Data
         run: python3 .github/scripts/fetch_data.py
 
+      - name: Build Static Site
+        run: python3 build.py
+
       - name: Commit & Push
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data.json
+          git add data.json dynamics.json _deploy/index.html
           if git diff --staged --quiet; then
             echo "No changes"
           else
-            git commit -m "update bilibili data [skip ci]"
+            git commit -m "update data + rebuild [skip ci]"
             git push
           fi
