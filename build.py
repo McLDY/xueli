@@ -139,9 +139,8 @@ function _C() {{ var a=document.getElementById('q'), b=document.getElementById('
     html = re.sub(r'\n{2,}', '\n', html)
 
     os.makedirs(DEPLOY, exist_ok=True)
-    for out in [os.path.join(DEPLOY, 'index.html'), os.path.join(ROOT, 'index.html')]:
-        with open(out, 'w', encoding='utf-8') as f:
-            f.write(html)
+    with open(os.path.join(DEPLOY, 'index.html'), 'w', encoding='utf-8') as f:
+        f.write(html)
 
     size = len(html.encode('utf-8'))
     print(f'Built: index.html ({size:,} bytes, {cnt} dynamics)')

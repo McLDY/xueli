@@ -1,15 +1,12 @@
-name: Update & Build
+name: Update Data
 
 on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['dynamics.json', 'data.json', 'build.py', 'test/test.py']
 
 jobs:
-  build:
+  fetch:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,20 +16,16 @@ jobs:
       - name: Fetch Bilibili Data
         run: python3 .github/scripts/fetch_data.py
 
-      - name: Build & Obfuscate
+      - name: Commit & Push from _deploy
         run: |
-          python3 build.py
-          python3 test/test.py index.html _deploy/index.html
-          cp _deploy/index.html index.html
-
-      - name: Commit & Push
-        run: |
+          cp data.json _deploy/data.json
+          cd _deploy
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data.json dynamics.json index.html _deploy/index.html
+          git add data.json
           if git diff --staged --quiet; then
             echo "No changes"
           else
-            git commit -m "update data + rebuild [skip ci]"
+            git commit -m "update data [skip ci]"
             git push
           fi
