@@ -106,6 +106,12 @@ else:
                 }
             elif major.get("type") == "MAJOR_TYPE_DRAW":
                 entry["type"] = "image"
+                draw = major.get("draw") or {}
+                imgs = draw.get("items") or []
+                entry["images"] = [
+                    {"src": img.get("src", ""), "width": img.get("width", 0), "height": img.get("height", 0)}
+                    for img in imgs if img.get("src")
+                ]
 
             dynamics.append(entry)
 
