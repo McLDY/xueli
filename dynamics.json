@@ -1,122 +1,15 @@
 [
   {
-    "id": "430359166978",
+    "id": "d0",
     "type": "text",
-    "content": "",
+    "content": "👋 欢迎来到我的页面！这里会展示我的最新动态。",
     "date": "2026-06-21"
   },
   {
-    "id": "289033547815",
-    "type": "image",
-    "content": "",
-    "date": "2026-06-18",
-    "images": []
-  },
-  {
-    "id": "138732761091",
-    "type": "image",
-    "content": "",
-    "date": "2026-06-18",
-    "images": [
-      {
-        "src": "http://i0.hdslb.com/bfs/new_dyn/2f56b7b2bcbb7aa0e235354c18a665ec394065596.png",
-        "width": "1784",
-        "height": "2490"
-      }
-    ]
-  },
-  {
-    "id": "073054826512",
+    "id": "d1",
     "type": "video",
-    "content": "",
-    "date": "2026-06-17",
-    "video": {
-      "title": "当雌小鬼被教育前后",
-      "bvid": "BV1gVLX6uEir"
-    }
-  },
-  {
-    "id": "419712626697",
-    "type": "image",
-    "content": "",
-    "date": "2026-06-16",
-    "images": [
-      {
-        "src": "http://i0.hdslb.com/bfs/new_dyn/0f7d5550406a708b29d9d73bf8b843fb394065596.png",
-        "width": "1280",
-        "height": "720"
-      }
-    ]
-  },
-  {
-    "id": "692727975938",
-    "type": "video",
-    "content": "",
-    "date": "2026-06-15",
-    "video": {
-      "title": "【新V不怕死挑战II】有种憋死我",
-      "bvid": "BV1AyJg6QEH5"
-    }
-  },
-  {
-    "id": "312422268934",
-    "type": "text",
-    "content": "点击预约按钮，不错过直播",
-    "date": "2026-06-14"
-  },
-  {
-    "id": "290514817064",
-    "type": "image",
-    "content": "",
-    "date": "2026-06-13",
-    "images": []
-  },
-  {
-    "id": "513807261734",
-    "type": "video",
-    "content": "",
-    "date": "2026-06-12",
-    "video": {
-      "title": "我再也不当RBQ了",
-      "bvid": "BV1uyEy6dE12"
-    }
-  },
-  {
-    "id": "637532114952",
-    "type": "text",
-    "content": "点击预约按钮，不错过直播",
-    "date": "2026-06-12"
-  },
-  {
-    "id": "204441477137",
-    "type": "image",
-    "content": "",
-    "date": "2026-06-12",
-    "images": [
-      {
-        "src": "http://i0.hdslb.com/bfs/new_dyn/d73cb2ddf4f6ab65530b19a8b0bb5b5b394065596.png",
-        "width": "1259",
-        "height": "450"
-      }
-    ]
-  },
-  {
-    "id": "142116306984",
-    "type": "image",
-    "content": "",
-    "date": "2026-06-11",
-    "images": [
-      {
-        "src": "http://i0.hdslb.com/bfs/new_dyn/50ac40dcb099dd3e1ce657bb4fa1ecd9394065596.png",
-        "width": "1150",
-        "height": "314"
-      }
-    ]
-  },
-  {
-    "id": "259883388982",
-    "type": "text",
-    "content": "点击预约按钮，不错过直播",
-    "date": "2026-06-11"
+    "content": "发布了新视频 🎬",
+    "date": "2026-06-20",
+    "video": {"title": "【翻唱】夜に駆ける", "bvid": "BV1GJ411m7Gk"}
   }
 ]
