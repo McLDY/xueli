@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 UID = sys.argv[1] if len(sys.argv) > 1 else "394065596"
 COOKIE = os.environ.get("BILI_COOKIE", "")
 
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", "Accept": "application/json, text/plain, */*", "Accept-Language": "zh-CN,zh;q=0.9"}
 
 def fetch(url, ref=None, auth=False):
     h = dict(HEADERS)
